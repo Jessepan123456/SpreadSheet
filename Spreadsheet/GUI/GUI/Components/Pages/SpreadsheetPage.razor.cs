@@ -117,7 +117,7 @@ public partial class SpreadsheetPage
        
         string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
         currentSheet.SetContentsOfCell(_selectedCell,contents);
-        
+        Console.WriteLine(currentSheet.GetCellValue(_selectedCell).ToString());
 
     }
 }
