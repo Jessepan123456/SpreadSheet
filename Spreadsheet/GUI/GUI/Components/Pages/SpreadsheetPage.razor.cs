@@ -27,7 +27,7 @@ public partial class SpreadsheetPage
 
     // private Spreadsheet currentSheet;
 
-     private String _selectedCell = "";
+     private String _selectedCell = "A1";
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -59,7 +59,7 @@ public partial class SpreadsheetPage
          char letter = Alphabet[col];
          string cell = $"{letter}{row + 1}";
          _selectedCell = cell;
-         Console.WriteLine($"{_selectedCell} clicked");
+         // Console.WriteLine($"{_selectedCell} clicked");
         _contentsBox.FocusAsync();
     }
 
@@ -112,11 +112,11 @@ public partial class SpreadsheetPage
         }
     }
 
-    private void ContentsChangedHandler(ChangeEventArgs obj)
-    {
-       
-        string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-        Console.WriteLine("changed contents:" + contents);
-      
-    }
+    // private void ContentsChangedHandler(ChangeEventArgs obj)
+    // {
+    //    
+    //     string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+    //     Console.WriteLine("changed contents:" + contents);
+    //   
+    // }
 }
