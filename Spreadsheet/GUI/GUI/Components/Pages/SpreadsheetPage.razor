@@ -6,6 +6,8 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
+Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
+Contents: <input @ref="_contentsBox" @onchange="ContentsChangedHandler"/>
 
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
@@ -36,7 +38,7 @@
                                 int r = row;
                                 int c = col;
 
-                                <td @onclick="() => CellClicked(r,c)" style="padding:0 !important;">
+                                <td @onclick="() => CellClicked(r,c)" style="padding:0px !important;">
                                     <p class="spreadcell"> @CellsBackingStore[r, c]  </p>
                                 </td>
                             }

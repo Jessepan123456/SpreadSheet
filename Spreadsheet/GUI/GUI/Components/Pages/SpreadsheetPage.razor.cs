@@ -3,15 +3,17 @@
 // </copyright>
 
 using System.Diagnostics;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using Spreadsheets;
 
 namespace GUI.Components.Pages;
 
 /// <summary>
 /// TODO: Fill in
 /// </summary>
-public partial class SpreadsheetPage
+public partial class SpreadsheetPage 
 {
     /// <summary>
     /// Based on your computer, you could shrink/grow this value based on performance.
@@ -22,6 +24,10 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
+
+    // private Spreadsheet currentSheet;
+
+     private String _selectedCell = "";
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -41,6 +47,7 @@ public partial class SpreadsheetPage
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
+    private ElementReference _contentsBox;
 
     /// <summary>
     /// Handler for when a cell is clicked
@@ -49,7 +56,11 @@ public partial class SpreadsheetPage
     /// <param name="col">The column component of the cell's coordinates</param>
     private void CellClicked( int row, int col )
     {
-
+         char letter = Alphabet[col];
+         string cell = $"{letter}{row + 1}";
+         _selectedCell = cell;
+         Console.WriteLine($"{_selectedCell} clicked");
+        _contentsBox.FocusAsync();
     }
 
 
@@ -101,4 +112,11 @@ public partial class SpreadsheetPage
         }
     }
 
+    private void ContentsChangedHandler(ChangeEventArgs obj)
+    {
+       
+        string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+        Console.WriteLine("changed contents:" + contents);
+      
+    }
 }

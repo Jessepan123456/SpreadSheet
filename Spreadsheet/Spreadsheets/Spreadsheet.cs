@@ -492,6 +492,29 @@ public class Spreadsheet
         {
             string json = File.ReadAllText(filename);
             Spreadsheet? info = JsonSerializer.Deserialize<Spreadsheet>(json);
+            
+            if (info != null && info._cells.Count != 0)
+            {
+                foreach (var name in info._cells.Keys)
+                {
+                    SetContentsOfCell(name, info._cells[name].StringFormat);
+                }
+            }
+
+            Changed = false;
+        }
+        catch (Exception)
+        {
+            throw new SpreadsheetReadWriteException("Failed to load file");
+        }
+    }
+
+    public void JsonReplace(string json)
+    {
+        try
+        {
+            Spreadsheet? info = JsonSerializer.Deserialize<Spreadsheet>(json);
+
             if (info != null && info._cells.Count != 0)
             {
                 foreach (var name in info._cells.Keys)
@@ -521,7 +544,7 @@ public class Spreadsheet
     {
         try
         {
-            string json = JsonSerializer.Serialize(this);
+            string json = JsonPath();
             File.WriteAllText(filename, json);
             Changed = false;
         }
@@ -530,6 +553,12 @@ public class Spreadsheet
             throw new SpreadsheetReadWriteException("A problem has occur when saving");
         }
     }
+
+    public string JsonPath()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+    
 
     /// <summary>
     ///     <para>
