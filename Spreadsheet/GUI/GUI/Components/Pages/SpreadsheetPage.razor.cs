@@ -25,29 +25,29 @@ public partial class SpreadsheetPage
     /// </summary>
     private const int Cols = 26;
 
-    private Spreadsheet currentSheet = new Spreadsheet();
+    private Spreadsheet _currentSheet = new Spreadsheet();
 
-     private String _selectedCell = "A1";
+    private String _selectedCell = "A1";
+    private String _selectedContent = "";
+    // private String _selectedValue = "";
+    
+    private ElementReference _contentsBox;
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
     /// </summary>
     private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-
+    
     /// <summary>
     ///   Gets or sets the name of the file to be saved
     /// </summary>
     private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-
-
+    
     /// <summary>
     ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-
-    private ElementReference _contentsBox;
 
     /// <summary>
     /// Handler for when a cell is clicked
@@ -56,10 +56,12 @@ public partial class SpreadsheetPage
     /// <param name="col">The column component of the cell's coordinates</param>
     private void CellClicked( int row, int col )
     {
-         char letter = Alphabet[col];
-         string cell = $"{letter}{row + 1}";
-         _selectedCell = cell;
-         Console.WriteLine($"{_selectedCell} clicked");
+        char letter = Alphabet[col];
+        string cell = $"{letter}{row + 1}";
+        _selectedCell = cell;
+         
+        _selectedContent = _currentSheet.GetCellContents(_selectedCell).ToString() ?? "";
+         
         _contentsBox.FocusAsync();
     }
 
@@ -114,10 +116,8 @@ public partial class SpreadsheetPage
 
     private void ContentsChangedHandler(ChangeEventArgs obj)
     {
-       
         string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-        currentSheet.SetContentsOfCell(_selectedCell,contents);
-        Console.WriteLine(currentSheet.GetCellValue(_selectedCell).ToString());
-
+        _currentSheet.SetContentsOfCell(_selectedCell,contents);
+        _selectedContent = contents;
     }
 }

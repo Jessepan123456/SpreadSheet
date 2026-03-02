@@ -7,7 +7,7 @@
 <PageTitle>Spreadsheet</PageTitle>
 
 Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
-Contents: <input @ref="_contentsBox"/>
+Contents: <input @ref="_contentsBox" @bind="_selectedContent"/>
 
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
