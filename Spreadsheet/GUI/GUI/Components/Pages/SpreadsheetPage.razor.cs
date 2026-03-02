@@ -25,9 +25,9 @@ public partial class SpreadsheetPage
     /// </summary>
     private const int Cols = 26;
 
-    // private Spreadsheet currentSheet;
+    private Spreadsheet currentSheet = new Spreadsheet();
 
-     private String _selectedCell = "";
+     private String _selectedCell = "A1";
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -116,7 +116,8 @@ public partial class SpreadsheetPage
     {
        
         string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-        Console.WriteLine("changed contents:" + contents);
-      
+        currentSheet.SetContentsOfCell(_selectedCell,contents);
+        
+
     }
 }
