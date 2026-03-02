@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheets", "Spreadsheet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{9439D964-9D70-4156-8C2C-AC74BF531449}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI\GUI.csproj", "{BC4839EE-D094-4F0F-A758-2AE9694EF004}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{9439D964-9D70-4156-8C2C-AC74BF531449}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9439D964-9D70-4156-8C2C-AC74BF531449}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9439D964-9D70-4156-8C2C-AC74BF531449}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC4839EE-D094-4F0F-A758-2AE9694EF004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4839EE-D094-4F0F-A758-2AE9694EF004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4839EE-D094-4F0F-A758-2AE9694EF004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4839EE-D094-4F0F-A758-2AE9694EF004}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
