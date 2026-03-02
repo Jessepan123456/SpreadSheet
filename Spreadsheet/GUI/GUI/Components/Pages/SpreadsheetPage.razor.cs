@@ -25,7 +25,7 @@ public partial class SpreadsheetPage
     /// </summary>
     private const int Cols = 26;
 
-    // private Spreadsheet currentSheet;
+    private Spreadsheet currentSheet = new Spreadsheet();
 
      private String _selectedCell = "A1";
 
@@ -59,7 +59,7 @@ public partial class SpreadsheetPage
          char letter = Alphabet[col];
          string cell = $"{letter}{row + 1}";
          _selectedCell = cell;
-         // Console.WriteLine($"{_selectedCell} clicked");
+         Console.WriteLine($"{_selectedCell} clicked");
         _contentsBox.FocusAsync();
     }
 
@@ -112,11 +112,12 @@ public partial class SpreadsheetPage
         }
     }
 
-    // private void ContentsChangedHandler(ChangeEventArgs obj)
-    // {
-    //    
-    //     string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-    //     Console.WriteLine("changed contents:" + contents);
-    //   
-    // }
+    private void ContentsChangedHandler(ChangeEventArgs obj)
+    {
+       
+        string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+        currentSheet.SetContentsOfCell(_selectedCell,contents);
+        
+
+    }
 }
