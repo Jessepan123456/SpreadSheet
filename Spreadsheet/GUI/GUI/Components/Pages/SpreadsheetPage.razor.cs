@@ -38,10 +38,7 @@ public partial class SpreadsheetPage
     /// Holds the selectedContent
     /// </summary>
     private String _selectedContent = "";
-    /// <summary>
-    /// Holdss the selectedValue
-    /// </summary>
-    private String _selectedValue = "";
+
     
     /// <summary>
     /// Allows the contentsBox to be uniquely display
@@ -64,6 +61,10 @@ public partial class SpreadsheetPage
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
+    private int r = 1;
+    
+    private int c = 1;
+    
     /// <summary>
     /// Handler for when a cell is clicked
     /// </summary>
@@ -74,8 +75,10 @@ public partial class SpreadsheetPage
         char letter = Alphabet[col];
         string cell = $"{letter}{row + 1}";
         _selectedCell = cell;
-         
-        _selectedContent = _currentSheet.GetCellContents(_selectedCell).ToString() ?? "";
+
+        _selectedContent = CellsBackingStore[row, col];
+        r = row;
+        c = col;
          
         _contentsBox.FocusAsync();
     }
@@ -119,7 +122,6 @@ public partial class SpreadsheetPage
                 fileContent = await reader.ReadToEndAsync();
 
                 _currentSheet.JsonReplace(fileContent);
-                // TODO: Use the loaded fileContent to replace the current spreadsheet
 
                 StateHasChanged();
             }
@@ -134,6 +136,22 @@ public partial class SpreadsheetPage
     {
         string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
         _currentSheet.SetContentsOfCell(_selectedCell,contents);
-        _selectedContent = contents;
+        CellsBackingStore[row, col] = contents;
+       // CellsBackingStore.SetValue(_currentSheet.GetCellValue(_selectedCell), r, c);
+       Console.WriteLine(_currentSheet.GetCellValue(_selectedCell).ToString());
+    }
+
+    private void updateSpreadSheet()
+    {
+        String _selectedValue = "";
+        for (int r = 0; r < Rows; r++)
+        {
+            for (int c = 0; c < Cols; c++)
+            {
+                
+            }
+            
+        }
+        
     }
 }
