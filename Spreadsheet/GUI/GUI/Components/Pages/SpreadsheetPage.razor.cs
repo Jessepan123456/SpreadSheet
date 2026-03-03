@@ -25,12 +25,27 @@ public partial class SpreadsheetPage
     /// </summary>
     private const int Cols = 26;
 
+    /// <summary>
+    /// Allow access to spreadsheet methods
+    /// </summary>
     private Spreadsheet _currentSheet = new Spreadsheet();
 
+    /// <summary>
+    /// Holds the selectedCell
+    /// </summary>
     private String _selectedCell = "A1";
+    /// <summary>
+    /// Holds the selectedContent
+    /// </summary>
     private String _selectedContent = "";
-    // private String _selectedValue = "";
+    /// <summary>
+    /// Holdss the selectedValue
+    /// </summary>
+    private String _selectedValue = "";
     
+    /// <summary>
+    /// Allows the contentsBox to be uniquely display
+    /// </summary>
     private ElementReference _contentsBox;
 
     /// <summary>
@@ -73,7 +88,7 @@ public partial class SpreadsheetPage
     private async void SaveFile()
     {
         await JsRuntime.InvokeVoidAsync( "downloadFile", FileSaveName, 
-            "replace this with the json representation of the current spreadsheet" );
+            _currentSheet.JsonPath() );
     }
 
     /// <summary>
@@ -103,6 +118,7 @@ public partial class SpreadsheetPage
                 // fileContent will contain the contents of the loaded file
                 fileContent = await reader.ReadToEndAsync();
 
+                _currentSheet.JsonReplace(fileContent);
                 // TODO: Use the loaded fileContent to replace the current spreadsheet
 
                 StateHasChanged();
