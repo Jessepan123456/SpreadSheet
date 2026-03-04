@@ -38,7 +38,6 @@ public partial class SpreadsheetPage
     /// Holds the selectedContent
     /// </summary>
     private String _selectedContent = "";
-
     
     /// <summary>
     /// Allows the contentsBox to be uniquely display
@@ -76,7 +75,7 @@ public partial class SpreadsheetPage
         string cell = $"{letter}{row + 1}";
         _selectedCell = cell;
 
-        _selectedContent = CellsBackingStore[row, col] ?? "";
+        _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
         _row = row;
         _col = col;
        
@@ -138,8 +137,7 @@ public partial class SpreadsheetPage
             string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
             _currentSheet.SetContentsOfCell(_selectedCell,contents);
             CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
-            _selectedContent = contents;
-            Console.WriteLine(_currentSheet.GetCellValue(_selectedCell).ToString());
+            UpdateSpreadSheet();
         }
         catch (NotImplementedException)
         {
@@ -155,7 +153,14 @@ public partial class SpreadsheetPage
             {
                 char letter = Alphabet[c];
                 string cell = $"{letter}{r + 1}";
-                CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString()??"";
+                try
+                {
+                    CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString()??"";
+                }
+                catch (Exception)
+                {
+                    CellsBackingStore[r, c] = "";
+                }
             }
             
         }

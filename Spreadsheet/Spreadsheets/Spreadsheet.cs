@@ -215,6 +215,10 @@ public class Spreadsheet
 
         if (!_cells.ContainsKey(name)) return "";
 
+        if (_cells[name].Content is Formula)
+        {
+            return "=" +  _cells[name].Content;
+        }
         return _cells[name].Content;
     }
 

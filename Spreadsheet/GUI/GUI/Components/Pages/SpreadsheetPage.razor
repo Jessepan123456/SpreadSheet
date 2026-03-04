@@ -10,7 +10,6 @@ Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
 Contents: <input @ref="_contentsBox" @onchange="ContentsChangedHandler"/>
 Content: <input readonly="true" @bind="_selectedContent"/>
 
-@* @bind="_selectedContent" *@
 <span>
     <button class="btn btn-primary" @onclick="SaveFile">Save</button>
     <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
