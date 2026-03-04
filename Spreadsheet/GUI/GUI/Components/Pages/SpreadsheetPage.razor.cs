@@ -61,9 +61,9 @@ public partial class SpreadsheetPage
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
-    private int _row = 1;
+    private int _row = 0;
     
-    private int _col = 1;
+    private int _col = 0;
     
     /// <summary>
     /// Handler for when a cell is clicked
@@ -133,23 +133,32 @@ public partial class SpreadsheetPage
 
     private void ContentsChangedHandler(ChangeEventArgs obj)  //might be better to implement some try catch - Max
     {
-        string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-        _currentSheet.SetContentsOfCell(_selectedCell,contents);
-        CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
-       Console.WriteLine(_currentSheet.GetCellValue(_selectedCell).ToString());
+        try
+        {
+            string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+            _currentSheet.SetContentsOfCell(_selectedCell,contents);
+            CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
+            _selectedContent = contents;
+            Console.WriteLine(_currentSheet.GetCellValue(_selectedCell).ToString());
+        }
+        catch (NotImplementedException)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    private void updateSpreadSheet()
+    private void UpdateSpreadSheet()
     {
-        // String _selectedValue = "";
-        // for (int r = 0; r < Rows; r++)
-        // {
-        //     for (int c = 0; c < Cols; c++)
-        //     {
-        //         
-        //     }
-        //     
-        // }
-        //
+        for (int r = 0; r < Rows; r++)
+        {
+            for (int c = 0; c < Cols; c++)
+            {
+                char letter = Alphabet[c];
+                string cell = $"{letter}{r + 1}";
+                CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString()??"";
+            }
+            
+        }
+        
     }
 }
