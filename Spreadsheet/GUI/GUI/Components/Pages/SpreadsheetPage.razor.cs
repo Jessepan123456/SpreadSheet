@@ -61,9 +61,9 @@ public partial class SpreadsheetPage
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
-    private int r = 1;
+    private int _row = 1;
     
-    private int c = 1;
+    private int _col = 1;
     
     /// <summary>
     /// Handler for when a cell is clicked
@@ -76,11 +76,10 @@ public partial class SpreadsheetPage
         string cell = $"{letter}{row + 1}";
         _selectedCell = cell;
 
-        _selectedContent = CellsBackingStore[row, col];
-        r = row;
-        c = col;
-         
-        _contentsBox.FocusAsync();
+        _selectedContent = CellsBackingStore[row, col] ?? "";
+        _row = row;
+        _col = col;
+       
     }
 
 
@@ -132,26 +131,25 @@ public partial class SpreadsheetPage
         }
     }
 
-    private void ContentsChangedHandler(ChangeEventArgs obj)
+    private void ContentsChangedHandler(ChangeEventArgs obj)  //might be better to implement some try catch - Max
     {
         string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
         _currentSheet.SetContentsOfCell(_selectedCell,contents);
-        CellsBackingStore[row, col] = contents;
-       // CellsBackingStore.SetValue(_currentSheet.GetCellValue(_selectedCell), r, c);
+        CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
        Console.WriteLine(_currentSheet.GetCellValue(_selectedCell).ToString());
     }
 
     private void updateSpreadSheet()
     {
-        String _selectedValue = "";
-        for (int r = 0; r < Rows; r++)
-        {
-            for (int c = 0; c < Cols; c++)
-            {
-                
-            }
-            
-        }
-        
+        // String _selectedValue = "";
+        // for (int r = 0; r < Rows; r++)
+        // {
+        //     for (int c = 0; c < Cols; c++)
+        //     {
+        //         
+        //     }
+        //     
+        // }
+        //
     }
 }
