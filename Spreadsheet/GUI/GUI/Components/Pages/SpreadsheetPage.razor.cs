@@ -78,7 +78,8 @@ public partial class SpreadsheetPage
         _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
         _row = row;
         _col = col;
-       
+
+        _contentsBox.FocusAsync();
     }
 
 
@@ -121,6 +122,9 @@ public partial class SpreadsheetPage
 
                 _currentSheet.JsonReplace(fileContent);
 
+                _selectedCell = "A1";
+                
+                UpdateSpreadSheet();
                 StateHasChanged();
             }
         }
@@ -162,8 +166,6 @@ public partial class SpreadsheetPage
                     CellsBackingStore[r, c] = "";
                 }
             }
-            
         }
-        
     }
 }
