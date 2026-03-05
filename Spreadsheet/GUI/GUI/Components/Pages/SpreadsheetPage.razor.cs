@@ -34,15 +34,19 @@ public partial class SpreadsheetPage
     /// Holds the selectedCell
     /// </summary>
     private String _selectedCell = "A1";
+
+    
     /// <summary>
     /// Holds the selectedContent
     /// </summary>
     private String _selectedContent = "";
-    
+
+ 
     /// <summary>
     /// Allows the contentsBox to be uniquely display
     /// </summary>
     private ElementReference _contentsBox;
+
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -60,9 +64,9 @@ public partial class SpreadsheetPage
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
 
-    private int _row = 0;
-    
-    private int _col = 0;
+    private int _row ;
+
+    private int _col;
     
     /// <summary>
     /// Handler for when a cell is clicked
@@ -121,9 +125,8 @@ public partial class SpreadsheetPage
                 fileContent = await reader.ReadToEndAsync();
 
                 _currentSheet.JsonReplace(fileContent);
-
+                FileSaveName = file.Name;
                 _selectedCell = "A1";
-                
                 UpdateSpreadSheet();
                 StateHasChanged();
             }
@@ -134,18 +137,18 @@ public partial class SpreadsheetPage
         }
     }
 
-    private void ContentsChangedHandler(ChangeEventArgs obj)  //might be better to implement some try catch - Max
+    private void ContentsChangedHandler()  //might be better to implement some try catch - Max
     {
         try
         {
-            string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-            _currentSheet.SetContentsOfCell(_selectedCell,contents);
+          //  string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+            _currentSheet.SetContentsOfCell(_selectedCell,_selectedContent);
             CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
             UpdateSpreadSheet();
         }
-        catch (NotImplementedException)
+        catch (Exception)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("ur throwing bruh");
         }
     }
 

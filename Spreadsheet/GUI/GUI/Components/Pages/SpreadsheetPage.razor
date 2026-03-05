@@ -7,14 +7,16 @@
 <PageTitle>Spreadsheet</PageTitle>
 
 Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
-Contents: <input @ref="_contentsBox" @onchange="ContentsChangedHandler"/>
-Content: <input readonly="true" @bind="_selectedContent"/>
+Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
 
+<div>
 <span>
-    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+    
     <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
+    <input  @bind="FileSaveName"/>   
+    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
 </span>
-
+</div>
 <div>
     <div class="table-container">
         <div class="scrollable">
