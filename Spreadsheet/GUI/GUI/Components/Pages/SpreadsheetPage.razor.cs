@@ -11,10 +11,15 @@ using Spreadsheets;
 namespace GUI.Components.Pages;
 
 /// <summary>
-/// TODO: Fill in
+///     Our Contol for our Spreadsheet UI
+///     Handles user input in our spreadsheet.
 /// </summary>
 public partial class SpreadsheetPage 
 {
+    private bool ShowError = false;
+    
+    private string ErrorMessage = "";
+    
     /// <summary>
     /// Based on your computer, you could shrink/grow this value based on performance.
     /// </summary>
@@ -141,16 +146,28 @@ public partial class SpreadsheetPage
     {
         try
         {
-          //  string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
-            _currentSheet.SetContentsOfCell(_selectedCell,_selectedContent);
+            //  string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
+            _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
             CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
             UpdateSpreadSheet();
         }
-        catch (Exception)
+        catch (CircularException)
         {
-            Console.WriteLine("ur throwing bruh");
+            ShowError = true;
+            ErrorMessage = "Circular Dependency Error";
+        }
+        catch (Exception )
+        {
+            ShowError = true;
+            ErrorMessage = "Invalid Formula Error";
         }
     }
+
+    private void DismissError()
+    {
+        ShowError = false;
+    }
+    
 
     private void UpdateSpreadSheet()
     {

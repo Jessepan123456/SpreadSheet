@@ -10,43 +10,53 @@ Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
 Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
 
 <div>
-<span>
+    <span>
     
-    <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
-    <input  @bind="FileSaveName"/>   
-    <button class="btn btn-primary" @onclick="SaveFile">Save</button>
-</span>
+        <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
+        <input  @bind="FileSaveName"/>   
+        <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+    </span>
+</div>
+<div class="error-container">
+    @if (ShowError)
+    {
+        <div class="centered-card text-center">
+            <span>@ErrorMessage</span>
+            <br/>
+            <button class="btn btn-danger" @onclick="DismissError">OK</button>
+        </div>
+    }
 </div>
 <div>
     <div class="table-container">
         <div class="scrollable">
             <table class="table table-bordered">
                 <thead>
-                    <tr class="fixed-header">
-                        <th scope="col">&nbsp;</th>
-                        @for ( int col = 0; col < Cols; col++ )
-                        {
-                            <th scope="col">@Alphabet[col]</th>
-                        }
-                    </tr>
+                <tr class="fixed-header">
+                    <th scope="col">&nbsp;</th>
+                    @for (int col = 0; col < Cols; col++)
+                    {
+                        <th scope="col">@Alphabet[col]</th>
+                    }
+                </tr>
                 </thead>
 
                 <tbody>
-                    @for ( int row = 0; row < Rows; row++ )
-                    {
-                        <tr style="padding:0 !important;">
-                            <th style="padding:0 !important;" scope="row" class="fixed-column">@(row + 1)</th>
-                            @for ( int col = 0; col < Cols; col++ )
-                            {
-                                int r = row;
-                                int c = col;
+                @for (int row = 0; row < Rows; row++)
+                {
+                    <tr style="padding:0 !important;">
+                        <th style="padding:0 !important;" scope="row" class="fixed-column">@(row + 1)</th>
+                        @for (int col = 0; col < Cols; col++)
+                        {
+                            int r = row;
+                            int c = col;
 
-                                <td @onclick="() => CellClicked(r,c)" style="padding:0px !important;">
-                                    <p class="spreadcell"> @CellsBackingStore[r, c]  </p>
-                                </td>
-                            }
-                        </tr>
-                    }
+                            <td @onclick="() => CellClicked(r,c)" style="padding:0px !important;">
+                                <p class="spreadcell"> @CellsBackingStore[r, c] </p>
+                            </td>
+                        }
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
@@ -56,7 +66,29 @@ Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="Conten
 <style>
     .spreadcell {
         width: 150px;
-        height: 40px;
+        height: 50px;
+        padding: 10px;
+        border: 1px solid black;
+        margin:0;
+       
+    }
+    .error-container{
+        width:100%;
+        height:100%;
+        display:flex;
+        align-content: center;
+        justify-content:center;
+        
+    }
+
+    .text-center{
+        position:fixed;
+        z-index:10;
+        border : 5px solid  black;
+        border-radius : 5px;
+        background-color: lightblue;
+        height:30%;
+        width:30%;
     }
 
     .table-container {
@@ -67,7 +99,7 @@ Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="Conten
         position: sticky;
         top: 0;
         z-index: 1;
-        background-color: #ffffff !important;
+        background-color: lightblue !important;
     }
 
     .fixed-column {
