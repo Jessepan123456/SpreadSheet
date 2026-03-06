@@ -13,11 +13,14 @@
         <input  @bind="FileSaveName"/>   
         <button class="btn btn-primary" @onclick="SaveFile">Save</button>
         <button class="btn btn-primary" @onclick="ClearSpreadsheet">Clear</button>
+        
     </span>
 </div>
 
 Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
-Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
+Contents:<input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
+<button class="btn-undo" @onclick="UndoContent"> (-</button>
+<button class="btn-redo" @onclick="redoContent"> -) </button>
 
 <div class="error-container">
     @if (_showError)
@@ -115,6 +118,36 @@ Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="Conten
         width: 1000px;
         height: 500px;
         margin: -1px;
+    }
+    html, body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: white;
+    }
+    .btn-danger {
+        color: #fff;
+        background-color: dodgerblue;
+        border-color: #dc3545;
+    }
+    .btn-undo{
+        width:  30px;
+        height: 40px;
+        border-radius: 2px;
+        color: #fff;
+        background-color: #1b6ec2;
+        border-color: #1861ac;
+        align-content: center;
+        align-items: center;
+        
+    }
+    .btn-redo{
+        width:  30px;
+        height: 40px;
+        border-radius: 2px;
+        color: #fff;
+        background-color: #1b6ec2;
+        border-color: #1861ac;
+        align-content: center;
+        align-items: center;
     }
 </style>
 
