@@ -11,15 +11,11 @@ using Spreadsheets;
 namespace GUI.Components.Pages;
 
 /// <summary>
-///     Our Contol for our Spreadsheet UI
-///     Handles user input in our spreadsheet.
+///     UI controller for the SpreadSheet
+///     Manages cell selection, content, value display, and error handling for exception
 /// </summary>
-public partial class SpreadsheetPage 
+public partial class SpreadsheetPage
 {
-    private bool ShowError = false;
-    
-    private string ErrorMessage = "";
-    
     /// <summary>
     /// Based on your computer, you could shrink/grow this value based on performance.
     /// </summary>
@@ -29,7 +25,7 @@ public partial class SpreadsheetPage
     /// Number of columns, which will be labeled A-Z.
     /// </summary>
     private const int Cols = 26;
-
+    
     /// <summary>
     /// Allow access to spreadsheet methods
     /// </summary>
@@ -39,7 +35,6 @@ public partial class SpreadsheetPage
     /// Holds the selectedCell
     /// </summary>
     private String _selectedCell = "A1";
-
     
     /// <summary>
     /// Holds the selectedContent
@@ -51,7 +46,26 @@ public partial class SpreadsheetPage
     /// Allows the contentsBox to be uniquely display
     /// </summary>
     private ElementReference _contentsBox;
+    
+    /// <summary>
+    /// Allow us to save the selected content row
+    /// </summary>
+    private int _row ;
 
+    /// <summary>
+    /// Allow us to save the selected content col
+    /// </summary>
+    private int _col;
+    
+    /// <summary>
+    /// A bool that determine whether to show the Error or not
+    /// </summary>
+    private bool _showError;
+    
+    /// <summary>
+    /// Error message when a exception is thrown
+    /// </summary>
+    private string _errorMessage = "";
 
     /// <summary>
     /// Provides an easy way to convert from an index to a letter (0 -> A)
@@ -68,10 +82,6 @@ public partial class SpreadsheetPage
     ///   <remarks>Backing Store for HTML</remarks>
     /// </summary>
     private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-
-    private int _row ;
-
-    private int _col;
     
     /// <summary>
     /// Handler for when a cell is clicked
@@ -87,11 +97,9 @@ public partial class SpreadsheetPage
         _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
         _row = row;
         _col = col;
-
         _contentsBox.FocusAsync();
     }
-
-
+    
     /// <summary>
     /// Saves the current spreadsheet, by providing a download of a file
     /// containing the json representation of the spreadsheet.
@@ -142,33 +150,58 @@ public partial class SpreadsheetPage
         }
     }
 
-    private void ContentsChangedHandler()  //might be better to implement some try catch - Max
+    /// <summary>
+    /// Change the contents of the selected cell by setting it s content in the
+    /// SpreadSheet, then sotring the evaluated value of that cell into the Cell
+    /// BackingStore. After it refresh the entire spreadsheet by calling UpdateSpreadSheet
+    /// If a CircularException or any other exception occurs, display a error message
+    /// </summary>
+    private void ContentsChangedHandler()  
     {
         try
         {
-            //  string contents = obj.Value as string ?? "BIG ERROR CHECK YOUR CODE";
             _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
             CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
             UpdateSpreadSheet();
         }
         catch (CircularException)
         {
-            ShowError = true;
-            ErrorMessage = "Circular Dependency Error";
+            _showError = true;
+            _errorMessage = "Circular Dependency Error";
         }
         catch (Exception )
         {
-            ShowError = true;
-            ErrorMessage = "Invalid Formula Error";
+            _showError = true;
+            _errorMessage = "Invalid Formula Error";
         }
     }
 
+    /// <summary>
+    /// Disable the error message
+    /// </summary>
     private void DismissError()
     {
-        ShowError = false;
+        _showError = false;
+    }
+
+    private void ClearSpreadsheet()
+    {
+        _currentSheet = new();
+        _selectedContent = "";
+        for (int r = 0; r < Rows; r++)
+        {
+            for (int c = 0; c < Cols; c++)
+            {
+                char letter = Alphabet[c];
+                string cell = $"{letter}{r + 1}";
+                CellsBackingStore[r, c] = "";
+            }
+        }
     }
     
-
+    /// <summary>
+    /// Reload the spreadsheet with updated data
+    /// </summary>
     private void UpdateSpreadSheet()
     {
         for (int r = 0; r < Rows; r++)

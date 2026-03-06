@@ -6,22 +6,24 @@
 
 <PageTitle>Spreadsheet</PageTitle>
 
-Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
-Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
-
 <div>
     <span>
     
         <label>Load</label><InputFile type="file" OnChange="HandleFileChooser" />
         <input  @bind="FileSaveName"/>   
         <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+        <button class="btn btn-primary" @onclick="ClearSpreadsheet">Clear</button>
     </span>
 </div>
+
+Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
+Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
+
 <div class="error-container">
-    @if (ShowError)
+    @if (_showError)
     {
         <div class="centered-card text-center">
-            <span>@ErrorMessage</span>
+            <span>@_errorMessage</span>
             <br/>
             <button class="btn btn-danger" @onclick="DismissError">OK</button>
         </div>
@@ -66,29 +68,28 @@ Contents: <input @ref="_contentsBox" @bind="_selectedContent"@bind:after="Conten
 <style>
     .spreadcell {
         width: 150px;
-        height: 50px;
+        height: 40px;
         padding: 10px;
-        border: 1px solid black;
+        border: 2px solid ghostwhite;
         margin:0;
-       
     }
     .error-container{
-        width:100%;
-        height:100%;
+        width: 100%;
+        height: 100%;
         display:flex;
-        align-content: center;
         justify-content:center;
-        
+        align-items: center;
     }
 
     .text-center{
         position:fixed;
-        z-index:10;
-        border : 5px solid  black;
+        z-index:3;
+        border : 1px solid black;
         border-radius : 5px;
-        background-color: lightblue;
-        height:30%;
-        width:30%;
+        background-color: #bfd1ec;
+        height:15%;
+        width: 15%;
+        align-content: center;
     }
 
     .table-container {
