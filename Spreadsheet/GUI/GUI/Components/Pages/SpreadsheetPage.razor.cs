@@ -27,7 +27,19 @@
         private const int Cols = 26;
 
         /// <summary>
-        /// Allow access to spreadsheet methods
+        ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
+        ///   <remarks>Backing Store for HTML</remarks>
+        /// </summary>
+        private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
+
+        /// <summary>
+        /// Provides an easy way to convert from an index to a letter (0 -> A)
+        /// </summary>
+        private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+
+        /// <summary>
+        /// Allow access to spreadsheet methods, that allow it to store cell contents
+        /// and values
         /// </summary>
         private Spreadsheet _currentSheet = new Spreadsheet();
 
@@ -40,33 +52,33 @@
         /// Holds the selectedContent
         /// </summary>
         private String _selectedContent = "";
-
-
+        
         /// <summary>
         /// Allows the contentsBox to be uniquely display
         /// </summary>
         private ElementReference _contentsBox;
 
         /// <summary>
-        /// Allow us to save the selected content row
+        /// Coordinates of the selected cell
         /// </summary>
         private int _row;
-
-        /// <summary>
-        /// Allow us to save the selected content col
-        /// </summary>
         private int _col;
 
         /// <summary>
-        /// A bool that determine whether to show the Error or not
+        /// A bool that determine whether to show the Error message or not
         /// </summary>
         private bool _showError;
 
         /// <summary>
-        /// Error message when a exception is thrown
+        /// Error message display
         /// </summary>
         private string _errorMessage = "";
         
+        /// <summary>
+        /// Stores the last content assigned to a cell
+        /// </summary>
+        private string _lastChanged = "";
+
         /// <summary>
         /// Stack that keeps track of the history of cell's names that have been edited
         /// </summary>
@@ -86,44 +98,11 @@
         /// Stack that keeps track of the cells that have been undone nd their content
         /// </summary>
         private Stack<String> _redoContentStack = new Stack<String>();
-
-        /// <summary>
-        /// Keep track of the last changed cell content
-        /// </summary>
-        private string lastChanged = "";
         
-        /// <summary>
-        /// Provides an easy way to convert from an index to a letter (0 -> A)
-        /// </summary>
-        private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
         /// <summary>
         ///   Gets or sets the name of the file to be saved
         /// </summary>
         private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-
-        /// <summary>
-        ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
-        ///   <remarks>Backing Store for HTML</remarks>
-        /// </summary>
-        private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-
-        /// <summary>
-        /// Handler for when a cell is clicked
-        /// </summary>
-        /// <param name="row">The row component of the cell's coordinates</param>
-        /// <param name="col">The column component of the cell's coordinates</param>
-        private void CellClicked(int row, int col)
-        {
-            char letter = Alphabet[col];
-            string cell = $"{letter}{row + 1}";
-            _selectedCell = cell;
-
-            _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
-            _row = row;
-            _col = col;
-            _contentsBox.FocusAsync();
-        }
 
         /// <summary>
         /// Saves the current spreadsheet, by providing a download of a file
@@ -177,9 +156,26 @@
         }
         
         /// <summary>
+        /// Handler for when a cell is clicked
+        /// </summary>
+        /// <param name="row">The row component of the cell's coordinates</param>
+        /// <param name="col">The column component of the cell's coordinates</param>
+        private void CellClicked(int row, int col)
+        {
+            char letter = Alphabet[col];
+            string cell = $"{letter}{row + 1}";
+            _selectedCell = cell;
+
+            _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
+            _row = row;
+            _col = col;
+            _contentsBox.FocusAsync();
+        }
+        
+        /// <summary>
         /// Change the contents of the selected cell by setting it s content in the
         /// SpreadSheet, then store the evaluated value of that cell into the Cell
-        /// BackingStore. After it refresh the entire spreadsheet by calling UpdateSpreadSheet
+        /// BackingStore. After it refreshes the entire spreadsheet by calling UpdateSpreadSheet
         /// If a CircularException or any other exception occurs, display an error message
         /// </summary>
         private void ContentsChangedHandler()
@@ -190,7 +186,7 @@
                 _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
                 CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
                 UpdateSpreadSheet();
-                lastChanged = _currentSheet.GetCellContents(_selectedCell)?.ToString()??"";
+                _lastChanged = _currentSheet.GetCellContents(_selectedCell)?.ToString()??"";
                 _undoNameStack.Push(_selectedCell);
                 _undoContentStack.Push(oldContent);
             }
@@ -207,7 +203,7 @@
         }
 
         /// <summary>
-        /// Disable the error message
+        /// HIdes the error popup displayed after an exception
         /// </summary>
         private void DismissError()
         {
@@ -231,7 +227,8 @@
         }
 
         /// <summary>
-        /// Reload the spreadsheet with updated data
+        /// Recomputes and updates the displayed values for every cell
+        /// Called after any change that may affect the cell values
         /// </summary>
         private void UpdateSpreadSheet()
         {
@@ -254,7 +251,8 @@
         }
 
         /// <summary>
-        /// Undoes the content that has been most recently edited
+        /// Reverts the most recent cell edit using the undo stacks.
+        /// Moves the reverted change into the redo stacks
         /// </summary>
         private void UndoContent()
         {
@@ -282,9 +280,10 @@
         }
 
         /// <summary>
-        /// Redoes content that has been undone
+        /// Readd the previously undone edit using the redo stacks.
+        /// If redo is empty, restores theh last known content.
         /// </summary>
-        private void redoContent()
+        private void RedoContent()
         {
             if (_redoNameStack.Count > 0)
             {
@@ -296,8 +295,8 @@
             }
             else
             {
-                _currentSheet.SetContentsOfCell(_selectedCell, lastChanged);
-                _selectedContent = lastChanged;
+                _currentSheet.SetContentsOfCell(_selectedCell, _lastChanged);
+                _selectedContent = _lastChanged;
             }
             UpdateSpreadSheet();
         }

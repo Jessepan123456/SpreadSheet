@@ -20,7 +20,7 @@
 Selected cell: <input readonly="true" @bind="_selectedCell"/> <br/>
 Contents:<input @ref="_contentsBox" @bind="_selectedContent"@bind:after="ContentsChangedHandler"/>  
 <button class="btn-undo" @onclick="UndoContent"> (-</button>
-<button class="btn-redo" @onclick="redoContent"> -) </button>
+<button class="btn-redo" @onclick="RedoContent"> -) </button>
 
 <div class="error-container">
     @if (_showError)
