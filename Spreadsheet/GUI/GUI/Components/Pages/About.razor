@@ -1,7 +1,29 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>About This Project</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Our Spreadsheet </h1>
+ Maximillion Jon Chua, Jesse Pan
 
-Welcome to your new app.
+ <br>
+ 
+ In our project, We created a spreadsheet that has the functionalities of being able to edit cells and
+ have it do artihmetic with said cells. So Essentially, We are able to do math, store words or number into
+ each cell. Another functionality that we have in our Spreadsheet is that we are able to save and load
+ spreadsheet data. In addition to being able to save and load spreadsheet data. We are also able to save
+ spreadsheet data in any chosen user input string.
+ <br>
+ For our additional custom functionality, We created a
+ undo and redo button. Our definition of the undo and redo button means that we are able to undo any changes 
+ that are seperated when you press enter and save something into the spreadsheet cell. For our redo, we expect
+ each time we restore a cell to happen if it has been previously been undone by the undone button 
+ <br>
+ Another additional functionality, We created a
+ Clear button, that basically clears the spreadsheet of any data in any cell into it original form being empty.
+ <br>
+ Development: 
+ Our custom function, Undo and Redo works by having 4 stacks. Our stacks are _undoNameStack,_undoContentStack,_redoNameStack
+ and _redoContentStack. From a Highlevel overview, Our implementation in each time you edit a cell in our 
+ Contents box. We push onto our undo stacks to keep track of our edit history. We keep track of the content
+ and the Name of the cell that we edited
+ Due to the nature of a stack being last in first out. We can accurately track the history of our edits.

@@ -1,281 +1,304 @@
-﻿// <copyright file="SpreadsheetPage.razor.cs" company="UofU-CS3500">
-// Copyright (c) 2024 UofU-CS3500. All rights reserved.
-// </copyright>
+﻿    // <copyright file="SpreadsheetPage.razor.cs" company="UofU-CS3500">
+    // Copyright (c) 2024 UofU-CS3500. All rights reserved.
+    // </copyright>
 
-using System.Diagnostics;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
-using Spreadsheets;
+    using System.Diagnostics;
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.AspNetCore.Components.Forms;
+    using Microsoft.JSInterop;
+    using Spreadsheets;
 
-namespace GUI.Components.Pages;
-
-/// <summary>
-///     UI controller for the SpreadSheet
-///     Manages cell selection, content, value display, and error handling for exception
-/// </summary>
-public partial class SpreadsheetPage
-{
-    /// <summary>
-    /// Based on your computer, you could shrink/grow this value based on performance.
-    /// </summary>
-    private const int Rows = 50;
+    namespace GUI.Components.Pages;
 
     /// <summary>
-    /// Number of columns, which will be labeled A-Z.
+    ///     UI controller for the SpreadSheet
+    ///     Manages cell selection, content, value display, and error handling for exception
     /// </summary>
-    private const int Cols = 26;
-
-    /// <summary>
-    /// Allow access to spreadsheet methods
-    /// </summary>
-    private Spreadsheet _currentSheet = new Spreadsheet();
-
-    /// <summary>
-    /// Holds the selectedCell
-    /// </summary>
-    private String _selectedCell = "A1";
-
-    /// <summary>
-    /// Holds the selectedContent
-    /// </summary>
-    private String _selectedContent = "";
-
-
-    /// <summary>
-    /// Allows the contentsBox to be uniquely display
-    /// </summary>
-    private ElementReference _contentsBox;
-
-    /// <summary>
-    /// Allow us to save the selected content row
-    /// </summary>
-    private int _row;
-
-    /// <summary>
-    /// Allow us to save the selected content col
-    /// </summary>
-    private int _col;
-
-    /// <summary>
-    /// A bool that determine whether to show the Error or not
-    /// </summary>
-    private bool _showError;
-
-    /// <summary>
-    /// Error message when a exception is thrown
-    /// </summary>
-    private string _errorMessage = "";
-
-    private Stack<String> _undoContentStack = new Stack<String>();
-    private Stack<String> _undoNameStack = new Stack<String>();
-    private Stack<String> _redoNameStack = new Stack<String>();
-    private Stack<String> _redoContentStack = new Stack<String>();
-
-    /// <summary>
-    /// Provides an easy way to convert from an index to a letter (0 -> A)
-    /// </summary>
-    private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-
-    /// <summary>
-    ///   Gets or sets the name of the file to be saved
-    /// </summary>
-    private string FileSaveName { get; set; } = "Spreadsheet.sprd";
-
-    /// <summary>
-    ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
-    ///   <remarks>Backing Store for HTML</remarks>
-    /// </summary>
-    private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
-
-    /// <summary>
-    /// Handler for when a cell is clicked
-    /// </summary>
-    /// <param name="row">The row component of the cell's coordinates</param>
-    /// <param name="col">The column component of the cell's coordinates</param>
-    private void CellClicked(int row, int col)
+    public partial class SpreadsheetPage
     {
-        char letter = Alphabet[col];
-        string cell = $"{letter}{row + 1}";
-        _selectedCell = cell;
+        /// <summary>
+        /// Based on your computer, you could shrink/grow this value based on performance.
+        /// </summary>
+        private const int Rows = 50;
 
-        _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
-        _row = row;
-        _col = col;
-        _contentsBox.FocusAsync();
-    }
+        /// <summary>
+        /// Number of columns, which will be labeled A-Z.
+        /// </summary>
+        private const int Cols = 26;
 
-    /// <summary>
-    /// Saves the current spreadsheet, by providing a download of a file
-    /// containing the json representation of the spreadsheet.
-    /// </summary>
-    private async void SaveFile()
-    {
-        await JsRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
-            _currentSheet.JsonPath());
-    }
+        /// <summary>
+        /// Allow access to spreadsheet methods
+        /// </summary>
+        private Spreadsheet _currentSheet = new Spreadsheet();
 
-    /// <summary>
-    /// This method will run when the file chooser is used, for loading a file.
-    /// Uploads a file containing a json representation of a spreadsheet, and 
-    /// replaces the current sheet with the loaded one.
-    /// </summary>
-    /// <param name="args">The event arguments, which contains the selected file name</param>
-    private async void HandleFileChooser(EventArgs args)
-    {
-        try
+        /// <summary>
+        /// Holds the selectedCell
+        /// </summary>
+        private String _selectedCell = "A1";
+
+        /// <summary>
+        /// Holds the selectedContent
+        /// </summary>
+        private String _selectedContent = "";
+
+
+        /// <summary>
+        /// Allows the contentsBox to be uniquely display
+        /// </summary>
+        private ElementReference _contentsBox;
+
+        /// <summary>
+        /// Allow us to save the selected content row
+        /// </summary>
+        private int _row;
+
+        /// <summary>
+        /// Allow us to save the selected content col
+        /// </summary>
+        private int _col;
+
+        /// <summary>
+        /// A bool that determine whether to show the Error or not
+        /// </summary>
+        private bool _showError;
+
+        /// <summary>
+        /// Error message when a exception is thrown
+        /// </summary>
+        private string _errorMessage = "";
+        
+        /// <summary>
+        /// Stack that keeps track of the history of cell's names that have been edited
+        /// </summary>
+        private Stack<String> _undoNameStack = new Stack<String>();
+        
+        /// <summary>
+        /// Stack That Keeps track of the history of the cell's contents that have been edited 
+        /// </summary>
+        private Stack<String> _undoContentStack = new Stack<String>();
+
+        /// <summary>
+        ///  Stack that keeps track of the cells that have been undone and their names 
+        /// </summary>
+        private Stack<String> _redoNameStack = new Stack<String>();
+       
+        /// <summary>
+        /// Stack that keeps track of the cells that have been undone nd their content
+        /// </summary>
+        private Stack<String> _redoContentStack = new Stack<String>();
+
+        /// <summary>
+        /// Keep track of the last changed cell content
+        /// </summary>
+        private string lastChanged = "";
+        
+        /// <summary>
+        /// Provides an easy way to convert from an index to a letter (0 -> A)
+        /// </summary>
+        private char[] Alphabet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+
+        /// <summary>
+        ///   Gets or sets the name of the file to be saved
+        /// </summary>
+        private string FileSaveName { get; set; } = "Spreadsheet.sprd";
+
+        /// <summary>
+        ///   <para> Gets or sets the data for all the cells in the spreadsheet GUI. </para>
+        ///   <remarks>Backing Store for HTML</remarks>
+        /// </summary>
+        private string[,] CellsBackingStore { get; set; } = new string[Rows, Cols];
+
+        /// <summary>
+        /// Handler for when a cell is clicked
+        /// </summary>
+        /// <param name="row">The row component of the cell's coordinates</param>
+        /// <param name="col">The column component of the cell's coordinates</param>
+        private void CellClicked(int row, int col)
         {
-            string fileContent = string.Empty;
+            char letter = Alphabet[col];
+            string cell = $"{letter}{row + 1}";
+            _selectedCell = cell;
 
-            InputFileChangeEventArgs eventArgs =
-                args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
-            if (eventArgs.FileCount == 1)
+            _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
+            _row = row;
+            _col = col;
+            _contentsBox.FocusAsync();
+        }
+
+        /// <summary>
+        /// Saves the current spreadsheet, by providing a download of a file
+        /// containing the json representation of the spreadsheet.
+        /// </summary>
+        private async void SaveFile()
+        {
+            await JsRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
+                _currentSheet.JsonPath());
+        }
+
+        /// <summary>
+        /// This method will run when the file chooser is used, for loading a file.
+        /// Uploads a file containing a json representation of a spreadsheet, and 
+        /// replaces the current sheet with the loaded one.
+        /// </summary>
+        /// <param name="args">The event arguments, which contains the selected file name</param>
+        private async void HandleFileChooser(EventArgs args)
+        {
+            try
             {
-                var file = eventArgs.File;
-                if (file is null)
+                string fileContent = string.Empty;
+
+                InputFileChangeEventArgs eventArgs =
+                    args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
+                if (eventArgs.FileCount == 1)
                 {
-                    return;
+                    var file = eventArgs.File;
+                    if (file is null)
+                    {
+                        return;
+                    }
+
+                    using var stream = file.OpenReadStream();
+                    using var reader = new StreamReader(stream);
+
+                    // fileContent will contain the contents of the loaded file
+                    fileContent = await reader.ReadToEndAsync();
+
+                    _currentSheet.JsonReplace(fileContent);
+                    FileSaveName = file.Name;
+                    _selectedCell = "A1";
+                    UpdateSpreadSheet();
+                    StateHasChanged();
                 }
-
-                using var stream = file.OpenReadStream();
-                using var reader = new StreamReader(stream);
-
-                // fileContent will contain the contents of the loaded file
-                fileContent = await reader.ReadToEndAsync();
-
-                _currentSheet.JsonReplace(fileContent);
-                FileSaveName = file.Name;
-                _selectedCell = "A1";
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("an error occurred while loading the file..." + e);
+            }
+        }
+        
+        /// <summary>
+        /// Change the contents of the selected cell by setting it s content in the
+        /// SpreadSheet, then store the evaluated value of that cell into the Cell
+        /// BackingStore. After it refresh the entire spreadsheet by calling UpdateSpreadSheet
+        /// If a CircularException or any other exception occurs, display an error message
+        /// </summary>
+        private void ContentsChangedHandler()
+        {
+            try
+            { 
+                string oldContent = _currentSheet.GetCellContents(_selectedCell)?.ToString() ?? "";
+                _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
+                CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
                 UpdateSpreadSheet();
-                StateHasChanged();
+                lastChanged = _currentSheet.GetCellContents(_selectedCell)?.ToString()??"";
+                _undoNameStack.Push(_selectedCell);
+                _undoContentStack.Push(oldContent);
+            }
+            catch (CircularException)
+            {
+                _showError = true;
+                _errorMessage = "Circular Dependency Error";
+            }
+            catch (Exception)
+            {
+                _showError = true;
+                _errorMessage = "Invalid Formula Error";
             }
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine("an error occurred while loading the file..." + e);
-        }
-    }
 
-    private string lastChanged = "";
-    /// <summary>
-    /// Change the contents of the selected cell by setting it s content in the
-    /// SpreadSheet, then store the evaluated value of that cell into the Cell
-    /// BackingStore. After it refresh the entire spreadsheet by calling UpdateSpreadSheet
-    /// If a CircularException or any other exception occurs, display an error message
-    /// </summary>
-    private void ContentsChangedHandler()
-    {
-        try
-        { 
-            string oldContent = _currentSheet.GetCellContents(_selectedCell)?.ToString() ?? "";
-            _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
-            CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
-            UpdateSpreadSheet();
-            lastChanged = _currentSheet.GetCellContents(_selectedCell)?.ToString() ?? "";
-            _undoNameStack.Push(_selectedCell);
-            _undoContentStack.Push(oldContent);
-        }
-        catch (CircularException)
+        /// <summary>
+        /// Disable the error message
+        /// </summary>
+        private void DismissError()
         {
-            _showError = true;
-            _errorMessage = "Circular Dependency Error";
+            _showError = false;
         }
-        catch (Exception)
-        {
-            _showError = true;
-            _errorMessage = "Invalid Formula Error";
-        }
-    }
 
-    /// <summary>
-    /// Disable the error message
-    /// </summary>
-    private void DismissError()
-    {
-        _showError = false;
-    }
-
-    private void ClearSpreadsheet()
-    {
-        _currentSheet = new();
-        _selectedContent = "";
-        for (int r = 0; r < Rows; r++)
+        /// <summary>
+        /// Clears the spreadsheet by looping through and setting them back to a empty string
+        /// </summary>
+        private void ClearSpreadsheet()
         {
-            for (int c = 0; c < Cols; c++)
+            _currentSheet = new();
+            _selectedContent = "";
+            for (int r = 0; r < Rows; r++)
             {
-                CellsBackingStore[r, c] = "";
-            }
-        }
-    }
-
-    /// <summary>
-    /// Reload the spreadsheet with updated data
-    /// </summary>
-    private void UpdateSpreadSheet()
-    {
-        for (int r = 0; r < Rows; r++)
-        {
-            for (int c = 0; c < Cols; c++)
-            {
-                char letter = Alphabet[c];
-                string cell = $"{letter}{r + 1}";
-                try
-                {
-                    CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString() ?? "";
-                }
-                catch (Exception)
+                for (int c = 0; c < Cols; c++)
                 {
                     CellsBackingStore[r, c] = "";
                 }
             }
         }
-    }
 
-    private void UndoContent()
-    {
-        if (_undoContentStack.Count > 0)
+        /// <summary>
+        /// Reload the spreadsheet with updated data
+        /// </summary>
+        private void UpdateSpreadSheet()
         {
-            string poppedCell = _undoNameStack.Pop();
-           
-            _redoNameStack.Push(poppedCell);
-            
-            string poppedContent = _undoContentStack.Pop();
-            
-            _redoContentStack.Push(poppedContent);
-            _currentSheet.SetContentsOfCell(poppedCell, poppedContent);
-            _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
-            _selectedCell = poppedCell;
-            //Console.WriteLine("ran");
-        }
-        else
-        {
-            _currentSheet.SetContentsOfCell(_selectedCell, "");
-            // _redoNameStack.Push(_selectedCell);
-            // _redoContentStack.Push(_selectedContent);
-            _selectedContent = "";
-            //Console.WriteLine("ran231");
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    char letter = Alphabet[c];
+                    string cell = $"{letter}{r + 1}";
+                    try
+                    {
+                        CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString() ?? "";
+                    }
+                    catch (Exception)
+                    {
+                        CellsBackingStore[r, c] = "";
+                    }
+                }
+            }
         }
 
-        UpdateSpreadSheet();
-    }
+        /// <summary>
+        /// Undoes the content that has been most recently edited
+        /// </summary>
+        private void UndoContent()
+        {
+            if (_undoContentStack.Count > 0)
+            {
+                string poppedCell = _undoNameStack.Pop();
+                string oldContent = _undoContentStack.Pop();
+                
+                string currentContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                
+                _redoNameStack.Push(poppedCell);
+                _redoContentStack.Push(currentContent);
+                
+                _currentSheet.SetContentsOfCell(poppedCell, oldContent);
+                _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                _selectedCell = poppedCell;
+            }
+            else
+            {
+                _currentSheet.SetContentsOfCell(_selectedCell, "");
+                _selectedContent = "";
+            }
 
-    private void redoContent()
-    {
-        if (_redoNameStack.Count > 0)
-        {
-            Console.Write(_redoNameStack.ToArray().ToString());
-            string poppedCell = _redoNameStack.Pop();
-            string poppedContent = _redoContentStack.Pop();
-            _currentSheet.SetContentsOfCell(poppedCell, poppedContent);
-            _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
-            _selectedCell = poppedCell;
-            Console.WriteLine("popped cel l" + poppedCell + "popped Content " + poppedContent);
+            UpdateSpreadSheet();
         }
-        else
+
+        /// <summary>
+        /// Redoes content that has been undone
+        /// </summary>
+        private void redoContent()
         {
-            _currentSheet.SetContentsOfCell(_selectedCell, lastChanged);
-            _selectedContent = lastChanged;
+            if (_redoNameStack.Count > 0)
+            {
+                string poppedCell = _redoNameStack.Pop();
+                string poppedContent = _redoContentStack.Pop();
+                _currentSheet.SetContentsOfCell(poppedCell, poppedContent);
+                _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                _selectedCell = poppedCell;
+            }
+            else
+            {
+                _currentSheet.SetContentsOfCell(_selectedCell, lastChanged);
+                _selectedContent = lastChanged;
+            }
+            UpdateSpreadSheet();
         }
-        UpdateSpreadSheet();
     }
-}
