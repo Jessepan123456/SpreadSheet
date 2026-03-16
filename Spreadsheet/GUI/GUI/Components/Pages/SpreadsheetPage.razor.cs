@@ -78,26 +78,16 @@
         /// Stores the last content assigned to a cell
         /// </summary>
         private string _lastChanged = "";
-
-        /// <summary>
-        /// Stack that keeps track of the history of cell's names that have been edited
-        /// </summary>
-        private Stack<String> _nameHistoryStack = new Stack<String>();
         
         /// <summary>
         /// Stack That Keeps track of the history of the cell's contents that have been edited 
         /// </summary>
-        private Stack<String> _contentHistoryStack = new Stack<String>();
+        private Stack<(string,string)> _undoHistoryStack = new Stack<(string,string)>();
 
         /// <summary>
         ///  Stack that keeps track of the cells that have been undone and their names 
         /// </summary>
-        private Stack<String> _undoneNameHistoryStack = new Stack<String>();
-       
-        /// <summary>
-        /// Stack that keeps track of the cells that have been undone nd their content
-        /// </summary>
-        private Stack<String> _undoneContentStack = new Stack<String>();
+        private Stack<(string,string)> _redoHistoryStack = new Stack<(string,string)>();
         
         /// <summary>
         ///   Gets or sets the name of the file to be saved
@@ -184,8 +174,13 @@
                 CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
                 UpdateSpreadSheet();
                 _lastChanged = _currentSheet.GetCellContents(_selectedCell).ToString()??"";
-                _nameHistoryStack.Push(_selectedCell);
-                _contentHistoryStack.Push(oldContent);
+                _undoHistoryStack.Push((_selectedCell, oldContent));
+                _redoHistoryStack.Clear();
+                
+                Console.WriteLine(string.Join(", ", _undoHistoryStack));
+                Console.WriteLine("-------------UndoStackContentChange--------------");
+                Console.WriteLine(string.Join(", ", _redoHistoryStack));
+                Console.WriteLine("--------------RedoStackContentChange---------------");
             }
             catch (CircularException)
             {
@@ -253,19 +248,18 @@
         /// </summary>
         private void UndoContent()
         {
-            if (_contentHistoryStack.Count > 0)
+            if (_undoHistoryStack.Count > 0)
             {
-                string poppedCell = _nameHistoryStack.Pop();
-                string oldContent = _contentHistoryStack.Pop();
+                (string cell ,string content) poppedCell = _undoHistoryStack.Pop();
                 
-                string currentContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
+                string currentContent = _currentSheet.GetCellContents(poppedCell.cell).ToString() ?? "";
+                _redoHistoryStack.Push((poppedCell.cell, currentContent));
                 
-                _undoneNameHistoryStack.Push(poppedCell);
-                _undoneContentStack.Push(currentContent);
+                _currentSheet.SetContentsOfCell(poppedCell.cell, poppedCell.content);
+                _selectedContent = _currentSheet.GetCellContents(poppedCell.cell).ToString() ?? "";
+                _selectedCell = poppedCell.cell;
                 
-                _currentSheet.SetContentsOfCell(poppedCell, oldContent);
-                _selectedContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
-                _selectedCell = poppedCell;
+                
             }
             else
             {
@@ -282,13 +276,17 @@
         /// </summary>
         private void RedoContent()
         {
-            if (_undoneNameHistoryStack.Count > 0)
+            if (_redoHistoryStack.Count > 0)
             {
-                string poppedCell = _undoneNameHistoryStack.Pop();
-                string poppedContent = _undoneContentStack.Pop();
-                _currentSheet.SetContentsOfCell(poppedCell, poppedContent);
-                _selectedContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
-                _selectedCell = poppedCell;
+              
+                (string cell, string content) poppedCell = _redoHistoryStack.Pop();
+                
+                string currentContent = _currentSheet.GetCellContents(poppedCell.cell).ToString() ?? "";
+                _undoHistoryStack.Push((poppedCell.cell, currentContent));
+                
+                _currentSheet.SetContentsOfCell(poppedCell.cell, poppedCell.content);
+                _selectedContent = _currentSheet.GetCellContents(poppedCell.cell).ToString() ?? "";
+                _selectedCell = poppedCell.cell;
             }
             else
             {
