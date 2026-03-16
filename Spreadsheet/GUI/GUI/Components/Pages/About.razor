@@ -31,9 +31,10 @@
  
  <h4>Development Details </h4>
  <p>
-     Our custom function, Undo and Redo works by having 4 stacks. Our stacks are <code>_nameHistoryStack</code>,<code>_contentHistoryStack </code>,<code>undoneNameHistoryStack</code>
-     and <code>_undoneContentStack</code>. From a High level overview, Our implementation in each time you edit a cell in our 
-     Contents box. We push onto our undo stacks to keep track of our edit history. We keep track of the content
+     Our custom function, Undo and Redo works by having 2 stacks. Our stacks are <code>_undoHistoryStack</code>,<code>_redoHistoryStack </code>.
+     In a High level overview, Our implementation is that each time you edit a cell with our 
+     Contents box. We push onto our undo stack to keep track of our edit history. We keep track of the content
      and the Name of the cell that we edited
+     If we pressed the undo button we keep track of what has been undone so that when we
      Due to the nature of a stack being last in first out. We can accurately track the history of our edits.
  </p>

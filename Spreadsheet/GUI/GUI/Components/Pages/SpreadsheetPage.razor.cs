@@ -176,11 +176,6 @@
                 _lastChanged = _currentSheet.GetCellContents(_selectedCell).ToString()??"";
                 _undoHistoryStack.Push((_selectedCell, oldContent));
                 _redoHistoryStack.Clear();
-                
-                Console.WriteLine(string.Join(", ", _undoHistoryStack));
-                Console.WriteLine("-------------UndoStackContentChange--------------");
-                Console.WriteLine(string.Join(", ", _redoHistoryStack));
-                Console.WriteLine("--------------RedoStackContentChange---------------");
             }
             catch (CircularException)
             {
@@ -233,6 +228,8 @@
                     try
                     {
                         CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell).ToString() ?? "";
+                        Console.WriteLine(CellsBackingStore[r, c]);
+
                     }
                     catch (Exception)
                     {
@@ -258,16 +255,14 @@
                 _currentSheet.SetContentsOfCell(poppedCell.cell, poppedCell.content);
                 _selectedContent = _currentSheet.GetCellContents(poppedCell.cell).ToString() ?? "";
                 _selectedCell = poppedCell.cell;
-                
-                
             }
             else
             {
                 _currentSheet.SetContentsOfCell(_selectedCell, "");
                 _selectedContent = "";
             }
-
             UpdateSpreadSheet();
+            Console.WriteLine("done");
         }
 
         /// <summary>
