@@ -107,7 +107,7 @@ public sealed class SpreadsheetTests
     {
         var s = new Spreadsheet();
         s.SetContentsOfCell("A1", "=3*3");
-        Assert.AreEqual(new Formula("3*3"), s.GetCellContents("A1"));
+        Assert.AreEqual("=3*3", s.GetCellContents("A1"));
     }
 
     // -- SetCell

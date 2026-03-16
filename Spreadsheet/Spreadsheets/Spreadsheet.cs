@@ -653,7 +653,7 @@ public class Spreadsheet
         ValidateName(name);
         if (content == "")
         {
-            return SetCellContents(name, content);
+            return SetAndRecalculate(name, content, content);
         }
 
         Changed = true;
@@ -697,15 +697,18 @@ public class Spreadsheet
 
         foreach (var n in list)
         {
-            var c = _cells[n].Content;
+            if (_cells.ContainsKey(n))
+            {
+                var c = _cells[n].Content;
 
-            if (c is Formula f)
-                _cells[n].Value = f.Evaluate(Lookup);
-            else
-                _cells[n].Value = c;
+                if (c is Formula f)
+                    _cells[n].Value = f.Evaluate(Lookup);
+                else
+                    _cells[n].Value = c;
+            }
         }
 
-        _cells[name].StringFormat = stringFormat;
+        if(_cells.ContainsKey(name)) _cells[name].StringFormat = stringFormat;
         return list;
     }
 

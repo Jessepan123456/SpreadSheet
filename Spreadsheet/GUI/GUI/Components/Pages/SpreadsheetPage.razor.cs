@@ -168,12 +168,12 @@
         private void ContentsChangedHandler()
         {
             try
-            { 
+            {
                 string oldContent = _currentSheet.GetCellContents(_selectedCell).ToString() ?? "";
                 _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
                 CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
                 UpdateSpreadSheet();
-                _lastChanged = _currentSheet.GetCellContents(_selectedCell).ToString()??"";
+                _lastChanged = _currentSheet.GetCellContents(_selectedCell).ToString() ?? "";
                 _undoHistoryStack.Push((_selectedCell, oldContent));
                 _redoHistoryStack.Clear();
             }
@@ -181,6 +181,11 @@
             {
                 _showError = true;
                 _errorMessage = "Circular Dependency Error";
+            }
+            catch (KeyNotFoundException)
+            {
+                CellsBackingStore[_row, _col] =  "";
+                UpdateSpreadSheet();
             }
             catch (Exception)
             {
@@ -228,7 +233,6 @@
                     try
                     {
                         CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell).ToString() ?? "";
-                        Console.WriteLine(CellsBackingStore[r, c]);
 
                     }
                     catch (Exception)
@@ -262,7 +266,6 @@
                 _selectedContent = "";
             }
             UpdateSpreadSheet();
-            Console.WriteLine("done");
         }
 
         /// <summary>
