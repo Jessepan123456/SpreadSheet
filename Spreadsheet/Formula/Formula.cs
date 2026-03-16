@@ -370,7 +370,7 @@ public class Formula
                         double value2 = result;
                         if (oper.Pop() == "/")
                         {
-                            if (value1 == 0)
+                            if (value2 == 0)
                             {
                                 return new FormulaError("A division by zero occurs");
                             }

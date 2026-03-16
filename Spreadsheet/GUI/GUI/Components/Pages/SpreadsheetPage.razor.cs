@@ -80,7 +80,7 @@
         private string _lastChanged = "";
         
         /// <summary>
-        /// Stack That Keeps track of the history of the cell's contents that have been edited 
+        /// Stack That Keeps track of the history of the cell's name and content that have been edited 
         /// </summary>
         private Stack<(string,string)> _undoHistoryStack = new Stack<(string,string)>();
 
