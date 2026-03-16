@@ -82,22 +82,22 @@
         /// <summary>
         /// Stack that keeps track of the history of cell's names that have been edited
         /// </summary>
-        private Stack<String> _undoNameStack = new Stack<String>();
+        private Stack<String> _nameHistoryStack = new Stack<String>();
         
         /// <summary>
         /// Stack That Keeps track of the history of the cell's contents that have been edited 
         /// </summary>
-        private Stack<String> _undoContentStack = new Stack<String>();
+        private Stack<String> _contentHistoryStack = new Stack<String>();
 
         /// <summary>
         ///  Stack that keeps track of the cells that have been undone and their names 
         /// </summary>
-        private Stack<String> _redoNameStack = new Stack<String>();
+        private Stack<String> _undoneNameHistoryStack = new Stack<String>();
        
         /// <summary>
         /// Stack that keeps track of the cells that have been undone nd their content
         /// </summary>
-        private Stack<String> _redoContentStack = new Stack<String>();
+        private Stack<String> _undoneContentStack = new Stack<String>();
         
         /// <summary>
         ///   Gets or sets the name of the file to be saved
@@ -113,6 +113,7 @@
             await JsRuntime.InvokeVoidAsync("downloadFile", FileSaveName,
                 _currentSheet.JsonPath());
         }
+        
 
         /// <summary>
         /// This method will run when the file chooser is used, for loading a file.
@@ -124,17 +125,13 @@
         {
             try
             {
-                string fileContent = string.Empty;
+                string fileContent;
 
                 InputFileChangeEventArgs eventArgs =
                     args as InputFileChangeEventArgs ?? throw new Exception("unable to get file name");
                 if (eventArgs.FileCount == 1)
                 {
                     var file = eventArgs.File;
-                    if (file is null)
-                    {
-                        return;
-                    }
 
                     using var stream = file.OpenReadStream();
                     using var reader = new StreamReader(stream);
@@ -166,7 +163,7 @@
             string cell = $"{letter}{row + 1}";
             _selectedCell = cell;
 
-            _selectedContent = _currentSheet.GetCellContents(cell)?.ToString() ?? "";
+            _selectedContent = _currentSheet.GetCellContents(cell).ToString() ?? "";
             _row = row;
             _col = col;
             _contentsBox.FocusAsync();
@@ -182,13 +179,13 @@
         {
             try
             { 
-                string oldContent = _currentSheet.GetCellContents(_selectedCell)?.ToString() ?? "";
+                string oldContent = _currentSheet.GetCellContents(_selectedCell).ToString() ?? "";
                 _currentSheet.SetContentsOfCell(_selectedCell, _selectedContent);
                 CellsBackingStore[_row, _col] = _currentSheet.GetCellValue(_selectedCell).ToString() ?? "";
                 UpdateSpreadSheet();
-                _lastChanged = _currentSheet.GetCellContents(_selectedCell)?.ToString()??"";
-                _undoNameStack.Push(_selectedCell);
-                _undoContentStack.Push(oldContent);
+                _lastChanged = _currentSheet.GetCellContents(_selectedCell).ToString()??"";
+                _nameHistoryStack.Push(_selectedCell);
+                _contentHistoryStack.Push(oldContent);
             }
             catch (CircularException)
             {
@@ -240,7 +237,7 @@
                     string cell = $"{letter}{r + 1}";
                     try
                     {
-                        CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell)?.ToString() ?? "";
+                        CellsBackingStore[r, c] = _currentSheet.GetCellValue(cell).ToString() ?? "";
                     }
                     catch (Exception)
                     {
@@ -256,18 +253,18 @@
         /// </summary>
         private void UndoContent()
         {
-            if (_undoContentStack.Count > 0)
+            if (_contentHistoryStack.Count > 0)
             {
-                string poppedCell = _undoNameStack.Pop();
-                string oldContent = _undoContentStack.Pop();
+                string poppedCell = _nameHistoryStack.Pop();
+                string oldContent = _contentHistoryStack.Pop();
                 
-                string currentContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                string currentContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
                 
-                _redoNameStack.Push(poppedCell);
-                _redoContentStack.Push(currentContent);
+                _undoneNameHistoryStack.Push(poppedCell);
+                _undoneContentStack.Push(currentContent);
                 
                 _currentSheet.SetContentsOfCell(poppedCell, oldContent);
-                _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                _selectedContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
                 _selectedCell = poppedCell;
             }
             else
@@ -285,19 +282,22 @@
         /// </summary>
         private void RedoContent()
         {
-            if (_redoNameStack.Count > 0)
+            if (_undoneNameHistoryStack.Count > 0)
             {
-                string poppedCell = _redoNameStack.Pop();
-                string poppedContent = _redoContentStack.Pop();
+                string poppedCell = _undoneNameHistoryStack.Pop();
+                string poppedContent = _undoneContentStack.Pop();
                 _currentSheet.SetContentsOfCell(poppedCell, poppedContent);
-                _selectedContent = _currentSheet.GetCellContents(poppedCell)?.ToString() ?? "";
+                _selectedContent = _currentSheet.GetCellContents(poppedCell).ToString() ?? "";
                 _selectedCell = poppedCell;
             }
             else
             {
-                _currentSheet.SetContentsOfCell(_selectedCell, _lastChanged);
-                _selectedContent = _lastChanged;
+               _currentSheet.SetContentsOfCell(_selectedCell, _lastChanged);
+               _selectedContent = _lastChanged;
             }
+          
             UpdateSpreadSheet();
         }
     }
+    
+    

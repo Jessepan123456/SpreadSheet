@@ -20,8 +20,8 @@
  </p>
  <p>
      <strong>Undo</strong> and <strong>Redo</strong> button. Our definition of the undo and redo button means that we are able to undo any changes 
-     that are separated when you press enter and save something into the spreadsheet cell. For our redo, we expect each time 
-     we restore a cell to happen if it has been previously been undone by the undone button. These button are represented by
+     that have been done when you pressed enter and save something into the spreadsheet cell. For our redo, we expect each time we press the button
+     we restore a cell that has been previously been undone by the undone button. These button are represented by
      <strong>-)</strong> as redo and <strong>(-</strong> as undo.
  </p>
  
@@ -31,8 +31,8 @@
  
  <h4>Development Details </h4>
  <p>
-     Our custom function, Undo and Redo works by having 4 stacks. Our stacks are <code>_undoNameStack</code>,<code>_undoContentStack</code>,<code>_redoNameStack</code>
-     and <code>_redoContentStack</code>. From a High level overview, Our implementation in each time you edit a cell in our 
+     Our custom function, Undo and Redo works by having 4 stacks. Our stacks are <code>_nameHistoryStack</code>,<code>_contentHistoryStack </code>,<code>undoneNameHistoryStack</code>
+     and <code>_undoneContentStack</code>. From a High level overview, Our implementation in each time you edit a cell in our 
      Contents box. We push onto our undo stacks to keep track of our edit history. We keep track of the content
      and the Name of the cell that we edited
      Due to the nature of a stack being last in first out. We can accurately track the history of our edits.
