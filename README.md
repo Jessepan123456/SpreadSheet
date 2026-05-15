@@ -13,8 +13,9 @@ A recreation of the Google spreadsheet that supports data storage, editing, and 
 - Implemented a Clear button
 
 ## How to Run
-Run the program
-Run the GUI for the spreadsheet 
+1. Clone the repository
+2. Run the program first
+3. Run the GUI second for the spreadsheet
 
 ## What I Learned:
 - How to design a large project step by step
